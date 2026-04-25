@@ -1,63 +1,103 @@
+<?php
+$conn = mysqli_connect("localhost", "root", "", "dbstudents");
+
+
+if (isset($_POST['save'])) {
+    $n = $_POST['name']; $s = $_POST['surname']; $m = $_POST['middlename'];
+    $a = $_POST['address']; $c = $_POST['contact'];
+    mysqli_query($conn, "INSERT INTO students (name, surname, middlename, address, contact_number) VALUES ('$n', '$s', '$m', '$a', '$c')");
+    header("Location: index.php?status=success");
+}
+
+
+if (isset($_POST['update'])) {
+    $id = $_POST['id']; $n = $_POST['name']; $s = $_POST['surname']; $m = $_POST['middlename'];
+    mysqli_query($conn, "UPDATE students SET name='$n', surname='$s', middlename='$m' WHERE id=$id");
+    header("Location: index.php");
+}
+
+
+if (isset($_GET['delete'])) {
+    $id = $_GET['delete'];
+    mysqli_query($conn, "DELETE FROM students WHERE id=$id");
+    header("Location: index.php");
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CRUD Operations</title>
-    <link   rel="stylesheet" href="style.css">
+    <title>Student System</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <nav class="navbar">
-            <img src="../images/northhub.svg" id="logo"></img>
-            <button class="navbarbuttons" onclick="showSection('create')"> Create </button>
-            <button class="navbarbuttons" > Read </button>
-            <button class="navbarbuttons" > Update </button>
-            <button class="navbarbuttons" > Delete </button>
+        <img src="logo.svg" id="logo" onclick="hideContent()" alt="Logo">
+        <button class="navbarbuttons" onclick="showSection('create')"> Create </button>
+        <button class="navbarbuttons" onclick="showSection('read')"> Read </button>
+        <button class="navbarbuttons" onclick="showSection('update')"> Update </button>
+        <button class="navbarbuttons" onclick="showSection('delete')"> Delete </button>
     </nav>
+
     <section id="home" class="homecontent"> 
-        <h1 class="splash">Welcome to Student Management System</h1>
-        <h2 class="splash">A Project in Integrative Programming Technologies</h2>
+        <h1 class="splash">Student Management System</h1>
     </section>
     
-    <section id="create" class="content">
-        <h1 class="contenttitle"> Insert New Student </h1>
-
-    <form action="../includes/insert.php" method="POST">
-        <label for="surname" class="label">Surname</label>
-        <input type="text" name="surname" id="surname" class="field" required><br/>
-
-        <label for="name" class="label">Name</label>
-        <input type="text" name="name" id="name" class="field" required><br/>
-
-        <label for="middlename" class="label">Middle name</label>
-        <input type="text" name="middlename" id="middlename" class="field"><br/>
-
-        <label for="address" class="label">Address</label>
-        <input type="text" name="address" id="address" class="field"><br/>
-
-        <label for="contact" class="label">Mobile Number</label>
-        <input type="text" name="contact" id="contact" class="field"><br/>
-
-        <div id="btncontainer">
-            <button type="button" id="clrbtn" class="btns">Clear Fields</button><br/>
-            <button type="submit" id="savebtn" class="btns">Save</button>
-        </div>
-
-        <div id="success-toast" class="toast-hidden">
-            Registration Successful!
-        </div>
-    </form>   
-
+    <section id="create" class="content" style="display:none;">
+        <h1 class="contenttitle">Insert Student</h1>
+        <form method="POST">
+            <label class="label">Surname</label><input type="text" name="surname" class="field" required><br>
+            <label class="label">Name</label><input type="text" name="name" class="field" required><br>
+            <label class="label">Middle Name</label><input type="text" name="middlename" class="field"><br>
+            <label class="label">Address</label><input type="text" name="address" class="field"><br>
+            <label class="label">Contact</label><input type="text" name="contact" class="field"><br>
+            <div id="btncontainer">
+                <button type="button" class="btns" onclick="clearFields()">Clear Fields</button>
+                <button type="submit" name="save" class="btns">Save</button>
+            </div>
+        </form>   
     </section>
 
-<br/><br/><br/><br/>
+    <section id="read" class="content" style="display:none;">
+        <h1 class="contenttitle">Student List</h1>
+        <table border="1" width="100%" style="border-collapse:collapse;">
+            <tr><th>ID</th><th>Surname</th><th>Name</th><th>Middle</th></tr>
+            <?php
+            $res = mysqli_query($conn, "SELECT * FROM students");
+            while($row = mysqli_fetch_assoc($res)) {
+                echo "<tr>
+                        <td>{$row['id']}</td>
+                        <td>{$row['surname']}</td>
+                        <td>{$row['name']}</td>
+                        <td>{$row['middlename']}</td>
+                      </tr>";
+            }
+            ?>
+        </table>
+    </section>
 
-    <section id="read" class="content"> View Students </section>
-    <section id="update" class="content"> Update Student Records </section>
-    <section id="delete" class="content"> Remove Student Records </section>
+    <section id="update" class="content" style="display:none;">
+        <h1 class="contenttitle">Update Student</h1>
+        <form method="POST">
+            <label class="label">ID to Change</label><input type="number" name="id" class="field" required><br>
+            <label class="label">New Surname</label><input type="text" name="surname" class="field"><br>
+            <label class="label">New Name</label><input type="text" name="name" class="field"><br>
+            <label class="label">New Middle</label><input type="text" name="middlename" class="field"><br>
+            <button type="submit" name="update" class="btns">Update Record</button>
+        </form>
+    </section>
 
+    <section id="delete" class="content" style="display:none;">
+        <h1 class="contenttitle">Delete</h1>
+        <?php
+        $res = mysqli_query($conn, "SELECT * FROM students");
+        while($row = mysqli_fetch_assoc($res)) {
+            echo "<p>{$row['name']} {$row['surname']} <a href='index.php?delete={$row['id']}' style='color:red'>[DELETE]</a></p>";
+        }
+        ?>
+    </section>
 
-
+    <div id="success-toast" class="toast-hidden" style="display:none; position:fixed; top:20px; right:20px; background:green; color:white; padding:15px;">Registration Successful!</div>
     <script src="script.js"></script>
 </body>
 </html>
