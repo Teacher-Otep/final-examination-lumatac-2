@@ -1,4 +1,3 @@
-
 function showSection(sectionID) {
     document.querySelectorAll('.content').forEach(s => s.style.display = 'none');
     document.getElementById('home').style.display = 'none';
@@ -6,18 +5,14 @@ function showSection(sectionID) {
     if(active) active.style.display = 'block';
 }
 
-
 function hideContent() {
     document.querySelectorAll('.content').forEach(s => s.style.display = 'none');
     document.getElementById('home').style.display = 'block';
 }
 
-
 function clearFields() {
-    const inputs = document.querySelectorAll('input[type="text"], input[type="number"]');
-    inputs.forEach(input => input.value = '');
+    document.querySelectorAll('input').forEach(input => input.value = '');
 }
-
 
 window.onload = function() {
     const params = new URLSearchParams(window.location.search);
