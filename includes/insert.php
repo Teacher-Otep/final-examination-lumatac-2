@@ -1,5 +1,4 @@
 <?php
-
 require_once __DIR__ . '/db.php';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -22,11 +21,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             ':contact'    => $contact
         ]);
 
-        header("Location: ../public/index.php?status=success");
+        header("Location: ../index.php?status=success");
         exit();
         
     } catch (PDOException $e) {
-        echo "Database Error: " . $e->getMessage();
+        die("Database Insertion Error: " . $e->getMessage());
     }
 }
 ?>
